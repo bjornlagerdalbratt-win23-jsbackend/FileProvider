@@ -4,8 +4,11 @@ using Data.Contexts;
 using Data.Entities;
 using FileProvider.Functions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.Extensions.Logging;
+using System.Security.Policy;
 
 namespace FileProvider.Services;
 
@@ -52,4 +55,31 @@ public class FileService(DataContext context, ILogger<FileService> logger, BlobS
         _context.Files.Add(fileEntity);
         await _context.SaveChangesAsync();
     }
+
+    //list all images
+    public async Task<IEnumerable<FileEntity>> GetAllAsync()
+    {
+        return await _context.Files.ToListAsync();
+
+    }
+
+    //get one image
+
+    public async Task<FileEntity> GetFileEntityAsync(string filePath)
+    {
+        return await _context.Files.FirstOrDefaultAsync(x => x.FilePath == filePath);
+    }
+
+    //public async Task<byte[]> GetFileAsync(string filePath)
+    //{
+    //    var fileEntity = await GetFileEntityAsync(filePath);
+    //    if (fileEntity != null)
+    //    {
+    //        var blobClient = new BlobClient(new Uri(fileEntity.FilePath));
+    //        if(await blobClient.ExistsAsync())
+    //        {
+    //            var downloadInfo = await blobClient.DownloadToAsync();
+    //        }
+    //    }
+    //}
 }
