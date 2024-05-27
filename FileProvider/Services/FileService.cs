@@ -70,16 +70,21 @@ public class FileService(DataContext context, ILogger<FileService> logger, BlobS
         return await _context.Files.FirstOrDefaultAsync(x => x.FilePath == filePath);
     }
 
-    //public async Task<byte[]> GetFileAsync(string filePath)
-    //{
-    //    var fileEntity = await GetFileEntityAsync(filePath);
-    //    if (fileEntity != null)
-    //    {
-    //        var blobClient = new BlobClient(new Uri(fileEntity.FilePath));
-    //        if(await blobClient.ExistsAsync())
-    //        {
-    //            var downloadInfo = await blobClient.DownloadToAsync();
-    //        }
-    //    }
-    //}
+    //get information from the file, such as filepath 
+    public async Task<byte[]?> GetFileAsync(string filePath)
+    {
+        var fileEntity = await GetFileEntityAsync(filePath);
+        if (fileEntity != null)
+        {
+            var blobClient = new BlobClient(new Uri(fileEntity.FilePath));
+            if (await blobClient.ExistsAsync())
+            {
+                var downloadInfo = await blobClient.DownloadAsync();
+                using var ms = new MemoryStream();
+                await downloadInfo.Value.Content.CopyToAsync(ms);
+                return ms.ToArray();
+            }
+        }
+        return null;
+    }
 }
